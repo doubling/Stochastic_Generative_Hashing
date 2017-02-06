@@ -1,4 +1,4 @@
-# Stochastic_Generative_Hashing
+# Stochastic Generative Hashing
 
 #### Code for stochastic generative hashing
 

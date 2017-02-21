@@ -6,7 +6,7 @@ import tensorflow as tf
 from tensorflow.python.framework import function
 
 import scipy.io as sio
-
+import sys
 
 """This is a simple demonstration of the stochastic generative hashing algorithm 
 with linear decoder and encoder on MNIST dataset. 
@@ -14,7 +14,7 @@ with linear decoder and encoder on MNIST dataset.
 Created by Bo Dai 2016"""
 
 
-def VAE_stoc_neuron(alpha, batch_size, learning_rate, max_iter, xtrain, xvar, xmean):
+def VAE_stoc_neuron(alpha, dim_input, dim_hidden, batch_size, learning_rate, max_iter, xtrain, xvar, xmean):
     
     g = tf.Graph()
     dtype = tf.float32
@@ -66,7 +66,7 @@ def VAE_stoc_neuron(alpha, batch_size, learning_rate, max_iter, xtrain, xvar, xm
         
         monitor = tf.nn.l2_loss(xout - x, name=None) 
         # loss = monitor + alpha * tf.reduce_sum(tf.reduce_sum(yout * tf.log(pout) + (1 - yout) * tf.log(1 - pout))) + beta * tf.nn.l2_loss(wdecode, name=None)
-        loss = monitor + alpha * tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(hencode, yout)) + beta * tf.nn.l2_loss(wdecode, name=None)
+        loss = monitor + alpha * tf.reduce_sum(tf.nn.sigmoid_cross_entropy_with_logits(hencode, yout)) + beta * tf.nn.l2_loss(wdecode, name=None) + beta * tf.nn.l2_loss(wencode, name=None)
         
         optimizer = tf.train.AdamOptimizer(learning_rate)
         # optimizer = tf.train.RMSPropOptimizer(learning_rate)
@@ -85,7 +85,12 @@ def VAE_stoc_neuron(alpha, batch_size, learning_rate, max_iter, xtrain, xvar, xm
             if i % 100 == 0:
                 print('Num iteration: %d Loss: %0.04f Monitor Loss %0.04f' %(i, loss_value / batch_size, monitor_value / batch_size))
                 train_err.append(loss_value)
-    
+   
+
+            if i % 2000 == 0:
+                learning_rate = 0.5 * learning_rate
+
+
         node_list = ['yout', 'pout', 'xout', 'wencode', 'bencode', 'wdecode', 'scale_para', 'shift_para']
         t_vars = tf.trainable_variables()
 
@@ -110,7 +115,9 @@ if __name__ == "__main__":
     # algorithm parameters
     dim_input = 28 * 28
     # length of bits
-    dim_hidden= 64 
+    dim_hidden= int(sys.argv[1]) 
+    print('dim of hidden variable is %d' %(dim_hidden))
+
     batch_size = 500
     learning_rate = 1e-2
     max_iter = 5000
@@ -119,7 +126,7 @@ if __name__ == "__main__":
 
     # start training
     start_time = time.time()
-    g, node_list, para_list, train_err = VAE_stoc_neuron(alpha, batch_size, learning_rate, max_iter, xtrain, xvar, xmean)
+    g, node_list, para_list, train_err = VAE_stoc_neuron(alpha, dim_input, dim_hidden, batch_size, learning_rate, max_iter, xtrain, xvar, xmean)
     end_time = (time.time() - start_time)
 
     print('Running time: %0.04f s' %end_time)
@@ -145,5 +152,5 @@ if __name__ == "__main__":
     htrain = (np.sign(trainpres - epsilon) + 1.0) / 2.0
     htest = hres
 
-    sio.savemat('mnist_codes.mat', {'htrain':htrain, 'htest': hres})
-    sio.savemat('mnist_model.mat', {'W': W, 'b': b, 'U': U, 'shift':shift, 'scale':scale})
+    filename = 'SGH_mnist_'+ str(dim_hidden) + 'bit.mat'
+    sio.savemat(filename, {'htrain':htrain, 'htest': hres, 'traintime': end_time, 'W': W, 'b': b, 'U': U, 'shift':shift, 'scale':scale})

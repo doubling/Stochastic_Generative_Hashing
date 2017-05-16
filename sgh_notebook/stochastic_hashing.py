@@ -32,10 +32,7 @@ def VAE_stoc_neuron(alpha, dim_input, dim_hidden, batch_size, learning_rate, max
 
             # unbiased
             dlogits = prob * (1 - prob) * (dprev + dpout)
-            
-            # biased 1/2 gradient trick (Deep AutoRegressive Networks, Gregor et.al., 2014)
-            # dlogits = 0.5 * (prob ** (1 - yout)) * ((1 - prob) ** yout) * dprev
-            
+                        
             depsilon = dprev
             return dlogits, depsilon
 

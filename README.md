@@ -6,7 +6,7 @@ This repository contains the tensorflow implementation of Stochastic Generative 
 
 Reference:
 
-[1] Bo Dai*, Ruiqi Guo*, Sanjiv Kumar, Niao He, Le Song. Stochastic Generative Hashing. https://arxiv.org/abs/1701.02815
+[1] Bo Dai*, Ruiqi Guo*, Sanjiv Kumar, Niao He, Le Song. Stochastic Generative Hashing. ICML 2017. https://arxiv.org/abs/1701.02815
 
 #### Prerequesites
 

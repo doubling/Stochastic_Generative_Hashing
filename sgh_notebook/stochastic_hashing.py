@@ -30,7 +30,7 @@ def VAE_stoc_neuron(alpha, dim_input, dim_hidden, batch_size, learning_rate, max
             # {-1, 1} coding
             # yout = tf.sign(prob - epsilon)
 
-            # unbiased
+            # biased
             dlogits = prob * (1 - prob) * (dprev + dpout)
                         
             depsilon = dprev
